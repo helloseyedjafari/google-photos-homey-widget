@@ -21,8 +21,8 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ---- palette ---------------------------------------------------------------
-BG_TL = (91, 147, 246)     # brand blue (top-left)
-BG_BR = (24, 45, 110)      # deep navy (bottom-right)
+BG_TL = (255, 143, 64)     # warm orange (top-left)
+BG_BR = (221, 54, 52)      # deep sunset red (bottom-right)
 SKY_TOP = (191, 230, 255)
 SKY_BOT = (255, 233, 194)
 SUN = (253, 185, 46)
@@ -126,7 +126,7 @@ def build_banner():
     img.alpha_composite(glow.filter(ImageFilter.GaussianBlur(60)))
 
     # photo stack (right side)
-    cx, cy = 744, 350
+    cx, cy = 756, 350
     cw, ch = 300, 236
     rad = 26
     paste_rotated_with_shadow(img, white_card(cw, ch, rad), (cx + 26, cy + 8), -13)
@@ -137,19 +137,19 @@ def build_banner():
     d = ImageDraw.Draw(img)
 
     # four brand dots
-    dx, dy, dr, gap = 66, 150, 11, 34
+    dx, dy, dr, gap = 66, 148, 13, 36
     for i, c in enumerate(DOTS):
         d.ellipse([dx + i * gap, dy, dx + i * gap + dr * 2, dy + dr * 2], fill=c)
 
-    # title
-    title_font = load_font(74, bold=True)
-    d.text((64, 196), "Google Photos", font=title_font, fill=WHITE)
-    d.text((64, 278), "Slideshow", font=title_font, fill=WHITE)
+    # title (large & bold so it stays crisp when Homey upscales the banner)
+    title_font = load_font(78, bold=True)
+    d.text((64, 194), "Google Photos", font=title_font, fill=WHITE)
+    d.text((64, 284), "Slideshow", font=title_font, fill=WHITE)
 
     # subtitle
-    sub_font = load_font(30, bold=False)
-    d.text((66, 392), "Any album, live on your dashboard.",
-           font=sub_font, fill=(223, 233, 255))
+    sub_font = load_font(32, bold=False)
+    d.text((66, 398), "Any album, live on your dashboard.",
+           font=sub_font, fill=(255, 238, 230))
 
     img = img.convert("RGB")
     sizes = {
