@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+    #stage {
+      position: absolute;
+      inset: 0;
+      background: #000;
+    }
+    .layer {
+      position: absolute;
+      inset: 0;
+      background-position: center center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      transition: opacity 900ms ease-in-out;
+      will-change: opacity;
+    }
+    .layer.cover { background-size: cover; }
+    .layer.contain { background-size: contain; }
+    .layer.show { opacity: 1; }
+    .layer.instant { transition: none; }
+    #msg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 18px;
+      box-sizing: border-box;
+      color: #e8e8e8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      background: #000;
+    }
+    #msg.hidden { display: none; }
+  </style>
+</head>
+<body class="homey-widget-full">
+  <div id="stage">
+    <div id="layerA" class="layer"></div>
+    <div id="layerB" class="layer"></div>
+  </div>
+  <div id="msg">Loading…</div>
+
+  <script type="text/javascript">
+    function onHomeyReady(Homey) {
+      // Tell Homey we're ready so the loading overlay is removed.
+      Homey.ready();
+
+      // ---- Settings ------------------------------------------------------
+      const s = Homey.getSettings() || {};
+      const albumUrl = String(s.albumUrl || '').trim();
+      const intervalSec = Math.max(2, Number(s.intervalSeconds) || 8);
+      const order = s.order || 'shuffle';
+      const fit = s.fit === 'contain' ? 'contain' : 'cover';
+      const transition = s.transition === 'none' ? 'none' : 'fade';
+      const refreshMinutes = Math.max(5, Number(s.refreshMinutes) || 30);
+
+      // ---- DOM -----------------------------------------------------------
+      const stage = document.getElementById('stage');
+      const msgEl = document.getElementById('msg');
+      const layers = [document.getElementById('layerA'), document.getElementById('layerB')];
+      layers.forEach((l) => l.classList.add(fit));
+      if (transition === 'none') layers.forEach((l) => l.classList.add('instant'));
+
+      // ---- State ---------------------------------------------------------
+      let photos = [];       // display-ordered [{url,width,height,timestamp}]
+      let front = 0;         // which layer (0/1) is currently visible
+      let shownIndex = -1;   // index of the photo currently on screen
+      let advancing = false; // guard against overlapping transitions
+
+      function showMessage(text) {
+        msgEl.textContent = text;
+        msgEl.classList.remove('hidden');
+      }
+      function hideMessage() {
+        msgEl.classList.add('hidden');
+      }
+
+      // Build a resolution-appropriate URL for the current widget size.
+      function sizedUrl(photo) {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = stage.getBoundingClientRect();
+        const w = Math.max(320, Math.round((rect.width || 320) * dpr));
+        const h = Math.max(320, Math.round((rect.height || 320) * dpr));
+        const clean = photo.url.replace(/=.*$/, '');
+        return clean + '=w' + w + '-h' + h;
+      }
+
+      // Deterministic shuffle so the order is stable across re-scans.
+      function seededShuffle(arr) {
+        const a = arr.slice();
+        let seed = (a.length * 2654435761) % 2147483647 || 1;
+        const rnd = () => {
+          seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+          return seed / 0x7fffffff;
+        };
+        for (let m = a.length; m > 1;) {
+          const i = Math.floor(rnd() * m--);
+          const t = a[m]; a[m] = a[i]; a[i] = t;
+        }
+        return a;
+      }
+
+      function applyOrder(list) {
+        if (order === 'newest') {
+          return list.slice().sort((x, y) => (y.timestamp || 0) - (x.timestamp || 0));
+        }
+        if (order === 'oldest') {
+          return list.slice().sort((x, y) => (x.timestamp || 0) - (y.timestamp || 0));
+        }
+        return seededShuffle(list);
+      }
+
+      // Which photo *should* be showing right now, derived from the wall
+      // clock. This is the key to surviving idle/dim: whenever the webview
+      // repaints (screen wakes, tab refocuses) we recompute and jump to the
+      // correct current photo instead of relying on a timer having fired.
+      function currentIndex() {
+        if (photos.length === 0) return -1;
+        return Math.floor(Date.now() / 1000 / intervalSec) % photos.length;
+      }
+
+      function preload(url) {
+        const img = new Image();
+        img.src = url;
+      }
+
+      // Resolve when the browser has the bytes for `url`. Rejects on error.
+      function ensureLoaded(url) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error('image failed to load'));
+          img.src = url;
+        });
+      }
+
+      async function displayIndex(idx, instant) {
+        if (advancing) return;
+        if (idx < 0 || idx >= photos.length) return;
+        advancing = true;
+        try {
+          const photo = photos[idx];
+          let url = sizedUrl(photo);
+
+          // Primary path: load the image directly from Google's CDN.
+          // Fallback path: if that fails (e.g. a webview CSP blocks the host),
+          // fetch it through the app backend as a data: URL.
+          try {
+            await ensureLoaded(url);
+          } catch (e1) {
+            try {
+              url = await Homey.api('POST', '/image', { url });
+              await ensureLoaded(url);
+            } catch (e2) {
+              // This photo is undisplayable — drop it and move on.
+              photos.splice(idx, 1);
+              if (photos.length === 0) showMessage('No displayable photos in this album.');
+              return;
+            }
+          }
+
+          const back = 1 - front;
+          const backLayer = layers[back];
+          const frontLayer = layers[front];
+
+          backLayer.style.backgroundImage = 'url("' + url + '")';
+          if (instant) backLayer.classList.add('instant');
+
+          // Force a reflow so the browser registers the new image before we
+          // animate opacity, otherwise the crossfade can be skipped.
+          void backLayer.offsetWidth;
+
+          backLayer.classList.add('show');
+          frontLayer.classList.remove('show');
+
+          if (instant) {
+            void backLayer.offsetWidth;
+            backLayer.classList.remove('instant');
+          }
+
+          front = back;
+          shownIndex = idx;
+          hideMessage();
+
+          preload(sizedUrl(photos[(idx + 1) % photos.length]));
+        } finally {
+          advancing = false;
+        }
+      }
+
+      function tick(force) {
+        const idx = currentIndex();
+        if (idx === -1) return;
+        if (idx !== shownIndex || force) {
+          displayIndex(idx, force === 'instant');
+        }
+      }
+
+      async function loadPhotos() {
+        if (!albumUrl) {
+          showMessage('Add your Google Photos album link in the widget settings (⚙︎).');
+          return;
+        }
+        try {
+          const result = await Homey.api('POST', '/photos', {
+            album: albumUrl,
+            refreshMinutes,
+          });
+          if (!Array.isArray(result) || result.length === 0) {
+            if (photos.length === 0) {
+              showMessage('No photos found. Make sure link sharing is enabled for the album.');
+            }
+            return;
+          }
+          photos = applyOrder(result);
+          shownIndex = -1;
+          tick('instant');
+        } catch (err) {
+          if (photos.length === 0) {
+            showMessage('Could not load the album. Check that the link is a public shared album.');
+          }
+        }
+      }
+
+      // Advance the slideshow. Checking every second (rather than every
+      // `intervalSec`) keeps it responsive and self-correcting.
+      setInterval(() => tick(false), 1000);
+
+      // Periodically re-scan the album so newly added photos appear.
+      setInterval(loadPhotos, refreshMinutes * 60 * 1000);
+
+      // Snap to the correct photo the moment the display becomes active again.
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) tick('instant');
+      });
+      window.addEventListener('focus', () => tick('instant'));
+      window.addEventListener('resize', () => tick('instant'));
+
+      loadPhotos();
+    }
+  </script>
+</body>
+</html>

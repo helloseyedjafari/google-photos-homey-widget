@@ -1,0 +1,14 @@
+{
+  "name": "com.seyedjafari.googlephotos",
+  "version": "1.0.0",
+  "description": "Slideshow any public Google Photos album as a Homey Pro dashboard widget.",
+  "main": "app.js",
+  "scripts": {
+    "test": "node --test",
+    "gen:images": "node scripts/gen-placeholders.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {}
+}
