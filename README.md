@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📸 Google Photos Slideshow for Homey Pro
+# 📸 Album Slideshow for G-Photo
 
 **Turn any public Google Photos album into a live slideshow on your Homey Pro dashboard — just paste a link.**
 
@@ -56,7 +56,7 @@ cd google-photos-homey-widget
 homey app install
 ```
 
-Then on your dashboard: **Edit → add widget → Google Photos Slideshow**, open
+Then on your dashboard: **Edit → add widget → Album Slideshow**, open
 its settings, and paste your album link.
 
 > 💡 Prefer live-reload while tinkering? Use `homey app run` instead of
