@@ -1,16 +1,19 @@
 {
   "id": "com.seyedjafari.googlephotos",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "compatibility": ">=12.3.0",
   "sdk": 3,
   "platforms": ["local"],
   "name": {
-    "en": "Google Photos Slideshow"
+    "en": "Album Slideshow for G-Photo"
   },
   "description": {
-    "en": "Slideshow any public Google Photos album on your Homey dashboard. Just paste a shared album link — nothing is copied or moved, and no Google API is required."
+    "en": "Slideshow any public Google Photos album on your dashboard — just paste a shared link. Nothing is copied or moved, and no Google API is required."
   },
   "category": ["tools"],
+  "tags": {
+    "en": ["photos", "slideshow", "album", "gallery", "photo frame", "google photos", "dashboard", "slides"]
+  },
   "permissions": [],
   "images": {
     "small": "/assets/images/banner-v2-small.png",
@@ -21,5 +24,8 @@
     "name": "Seyed Jafari",
     "email": "hello@seyedjafari.com"
   },
+  "homepage": "https://github.com/helloseyedjafari/google-photos-homey-widget",
+  "support": "https://github.com/helloseyedjafari/google-photos-homey-widget/issues",
+  "source": "https://github.com/helloseyedjafari/google-photos-homey-widget",
   "brandColor": "#FB5A2D"
 }
