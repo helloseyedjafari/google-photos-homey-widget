@@ -137,6 +137,15 @@ true sleep it snaps to the correct photo on wake.
   need a small update to `lib/googlePhotos.js`. This is the one inherent risk of
   reading the public page instead of an official API.
 
+### Known limit: ~300 photos
+
+The public share page loads only the first **~300 photos** of an album (Google
+lazy-loads the rest as you scroll in a browser). If your album has 300 or fewer,
+you get all of them; if it's larger, the slideshow cycles the first ~300. That's
+plenty for a photo frame, but fetching *everything* would require paginating
+Google's internal endpoint — more complex and more fragile. Open an issue /
+extend `lib/googlePhotos.js` if you need it.
+
 ### Debugging
 
 Attach Chrome/Safari DevTools to the widget webview (see the Homey docs:
