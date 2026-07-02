@@ -152,10 +152,12 @@ def build_banner():
            font=sub_font, fill=(255, 238, 230))
 
     img = img.convert("RGB")
+    # Filenames carry a version tag so the Homey app treats them as new URLs
+    # and doesn't serve a stale cached banner. Bump when the banner changes.
     sizes = {
-        "assets/images/xlarge.png": (1000, 700),
-        "assets/images/large.png": (500, 350),
-        "assets/images/small.png": (250, 175),
+        "assets/images/banner-v2-xlarge.png": (1000, 700),
+        "assets/images/banner-v2-large.png": (500, 350),
+        "assets/images/banner-v2-small.png": (250, 175),
     }
     for rel, (w, h) in sizes.items():
         out = img.resize((w, h), Image.LANCZOS)
