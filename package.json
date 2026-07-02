@@ -1,5 +1,5 @@
 {
-  "name": "com.seyedjafari.googlephotos",
+  "name": "com.seyedjafari.albumslider",
   "version": "1.0.5",
   "description": "Slideshow any public Google Photos album as a Homey Pro dashboard widget.",
   "main": "app.js",
