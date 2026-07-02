@@ -71,16 +71,22 @@ function solidPng(width, height, [r, g, b]) {
 
 const root = path.resolve(__dirname, '..');
 const BLUE = [66, 133, 244];
+const LIGHT = [232, 234, 237];
+const DARK = [32, 33, 36];
 
 const targets = [
-  ['assets/images/small.png', 250, 175],
-  ['assets/images/large.png', 500, 350],
-  ['assets/images/xlarge.png', 1000, 700],
+  // App Store images
+  ['assets/images/small.png', 250, 175, BLUE],
+  ['assets/images/large.png', 500, 350, BLUE],
+  ['assets/images/xlarge.png', 1000, 700, BLUE],
+  // Widget preview images (shown in the dashboard widget picker)
+  ['widgets/slideshow/preview-light.png', 400, 300, LIGHT],
+  ['widgets/slideshow/preview-dark.png', 400, 300, DARK],
 ];
 
-for (const [rel, w, h] of targets) {
+for (const [rel, w, h, color] of targets) {
   const out = path.join(root, rel);
   fs.mkdirSync(path.dirname(out), { recursive: true });
-  fs.writeFileSync(out, solidPng(w, h, BLUE));
+  fs.writeFileSync(out, solidPng(w, h, color));
   console.log(`wrote ${rel} (${w}x${h})`);
 }

@@ -1,0 +1,161 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "com.seyedjafari.googlephotos",
+  "version": "1.0.0",
+  "compatibility": ">=12.3.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Google Photos Slideshow"
+  },
+  "description": {
+    "en": "Slideshow any public Google Photos album on your Homey dashboard. Just paste a shared album link — nothing is copied or moved, and no Google API is required."
+  },
+  "category": [
+    "tools"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Seyed Jafari",
+    "email": "hello@seyedjafari.com"
+  },
+  "brandColor": "#4285F4",
+  "widgets": {
+    "slideshow": {
+      "name": {
+        "en": "Google Photos Slideshow"
+      },
+      "height": 300,
+      "transparent": false,
+      "settings": [
+        {
+          "id": "albumUrl",
+          "type": "text",
+          "title": {
+            "en": "Album link"
+          },
+          "value": "",
+          "hint": {
+            "en": "Paste a PUBLIC Google Photos shared album link. In Google Photos: open the album → Share → Create link. e.g. https://photos.app.goo.gl/…"
+          }
+        },
+        {
+          "id": "intervalSeconds",
+          "type": "number",
+          "title": {
+            "en": "Seconds per photo"
+          },
+          "value": 8,
+          "min": 2,
+          "max": 3600,
+          "hint": {
+            "en": "How long each photo stays on screen before the next one."
+          }
+        },
+        {
+          "id": "order",
+          "type": "dropdown",
+          "title": {
+            "en": "Order"
+          },
+          "value": "shuffle",
+          "values": [
+            {
+              "id": "shuffle",
+              "title": {
+                "en": "Shuffle (random)"
+              }
+            },
+            {
+              "id": "newest",
+              "title": {
+                "en": "Newest first"
+              }
+            },
+            {
+              "id": "oldest",
+              "title": {
+                "en": "Oldest first"
+              }
+            }
+          ]
+        },
+        {
+          "id": "fit",
+          "type": "dropdown",
+          "title": {
+            "en": "Image fit"
+          },
+          "value": "cover",
+          "values": [
+            {
+              "id": "cover",
+              "title": {
+                "en": "Fill (crop to fit the frame)"
+              }
+            },
+            {
+              "id": "contain",
+              "title": {
+                "en": "Fit (show the whole photo)"
+              }
+            }
+          ]
+        },
+        {
+          "id": "transition",
+          "type": "dropdown",
+          "title": {
+            "en": "Transition"
+          },
+          "value": "fade",
+          "values": [
+            {
+              "id": "fade",
+              "title": {
+                "en": "Crossfade"
+              }
+            },
+            {
+              "id": "none",
+              "title": {
+                "en": "None"
+              }
+            }
+          ]
+        },
+        {
+          "id": "refreshMinutes",
+          "type": "number",
+          "title": {
+            "en": "Re-scan album every (minutes)"
+          },
+          "value": 30,
+          "min": 5,
+          "max": 1440,
+          "hint": {
+            "en": "How often to check the album for newly added photos."
+          }
+        }
+      ],
+      "api": {
+        "getPhotos": {
+          "method": "POST",
+          "path": "/photos"
+        },
+        "getImage": {
+          "method": "POST",
+          "path": "/image"
+        }
+      },
+      "id": "slideshow"
+    }
+  }
+}
