@@ -168,19 +168,24 @@ def build_banner():
 
 
 # ---- widget previews -------------------------------------------------------
-def build_preview(bg_color, rel):
+def build_preview(rel):
+    # Widget previews must have a transparent background (Homey App Store
+    # guideline 1-10): start from a fully transparent canvas and keep the
+    # RGBA alpha channel — do NOT flatten to RGB, which would bake in an
+    # opaque background.
     W, H = 400, 300
-    img = Image.new("RGBA", (W, H), bg_color + (255,))
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     card = landscape_card(W - 28, H - 28, 20)
     paste_rotated_with_shadow(img, card, (W // 2, H // 2), 0,
                               shadow_alpha=70, blur=16, offset=(0, 10))
-    img = img.convert("RGB")
     p = os.path.join(ROOT, rel)
     img.save(p)
-    print(f"wrote {rel} ({W}x{H})")
+    print(f"wrote {rel} ({W}x{H}, transparent)")
 
 
 if __name__ == "__main__":
     build_banner()
-    build_preview((238, 240, 244), "widgets/slideshow/preview-light.png")
-    build_preview((26, 27, 30), "widgets/slideshow/preview-dark.png")
+    # Light and dark share the same transparent preview so it blends into the
+    # widget picker in either theme.
+    build_preview("widgets/slideshow/preview-light.png")
+    build_preview("widgets/slideshow/preview-dark.png")

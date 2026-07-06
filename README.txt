@@ -1,20 +1,3 @@
-Turn any public Google Photos album into a live slideshow on your Homey dashboard.
+Turn any public Google Photos album into a live slideshow on your Homey dashboard. Just paste a shared album link and you are set — photos stream straight from Google, so nothing is ever copied, moved, or stored on your Homey, and there is no Google account, API, or key to set up. Like the dashboard clock, the slideshow keeps cycling even when the screen dims or goes idle, which makes it ideal for a wall-mounted tablet.
 
-Just paste a shared album link — that is the whole setup. Photos stream straight from Google's servers; nothing is ever copied, moved, or stored on your Homey. No Google API, no account, and no keys.
-
-Features
-- Keeps cycling even when the screen dims or goes idle, just like the dashboard clock.
-- Settings: seconds per photo, order (shuffle / newest / oldest), fill vs. fit, crossfade, and how often to re-scan the album for new photos.
-- Resizable widget; your photos fill whatever size you choose.
-
-Getting started
-1. In Google Photos, open an album and choose Share, then Create link.
-2. Add the "Album Slideshow" widget to your dashboard.
-3. Open the widget settings and paste the link.
-
-Good to know
-- Link sharing must be enabled on the album (public shared link).
-- Photos only (videos in the album are skipped).
-- This reads Google's public album pages rather than an official API, so it may occasionally need an update if Google changes their site.
-
-Tip: on a wall-mounted tablet, keep the screen from fully sleeping (Homey Kiosk Mode, or Fully Kiosk's "keep screen on") so the slideshow never stops.
+To get started, open an album in Google Photos, choose Share and then Create link, and paste that link into the widget's settings. You can set how long each photo stays on screen, the order (shuffle, newest, or oldest), whether photos fill or fit the frame, the crossfade, and how often the album is re-scanned for newly added photos, and the widget resizes to suit your dashboard. Link sharing must be enabled on the album, videos are skipped, and because the app reads Google's public album page rather than an official API it may occasionally need an update if Google changes their site.
